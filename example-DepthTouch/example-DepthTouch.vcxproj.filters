@@ -13,6 +13,9 @@
 		<ClCompile Include="src\ofApp.cpp">
 			<Filter>src</Filter>
 		</ClCompile>
+		<ClCompile Include="..\..\..\addons\ofxDepthTouch\src\ofxDepthTouch.cpp">
+			<Filter>addons\ofxDepthTouch\src</Filter>
+		</ClCompile>
 		<ClCompile Include="..\..\..\addons\ofxDepthTouch\src\TextUtils.cpp">
 			<Filter>addons\ofxDepthTouch\src</Filter>
 		</ClCompile>
@@ -176,7 +179,13 @@
 		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\geomConfig.h">
 			<Filter>addons\ofxDepthTouch\src</Filter>
 		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\ofxDepthTouch.h">
+			<Filter>addons\ofxDepthTouch\src</Filter>
+		</ClInclude>
 		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\TextUtils.h">
+			<Filter>addons\ofxDepthTouch\src</Filter>
+		</ClInclude>
+		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\Touch.h">
 			<Filter>addons\ofxDepthTouch\src</Filter>
 		</ClInclude>
 		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\WindowUtils.h">

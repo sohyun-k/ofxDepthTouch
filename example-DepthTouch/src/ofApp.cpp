@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+	this->setupKinect();
 
 }
 
@@ -25,47 +26,29 @@ void ofApp::keyReleased(int key){
 
 }
 
-//--------------------------------------------------------------
-void ofApp::mouseMoved(int x, int y ){
 
-}
+void ofApp::setupKinect()
+{
+	kinect = new ofxKinect2::Device();
+	kinect->setup();
+	kinect->setDepthColorSyncEnabled(); // needed to create the mapper object
 
-//--------------------------------------------------------------
-void ofApp::mouseDragged(int x, int y, int button){
+	if (depthStream.setup(*kinect))
+		depthStream.open();
 
-}
+#if 0
+	if (colorStream.setup(*kinect))
+		colorStream.open();
+#endif
+	if (irStream.setup(*kinect))
+		irStream.open();
 
-//--------------------------------------------------------------
-void ofApp::mousePressed(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseReleased(int x, int y, int button){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseEntered(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::mouseExited(int x, int y){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::windowResized(int w, int h){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::gotMessage(ofMessage msg){
-
-}
-
-//--------------------------------------------------------------
-void ofApp::dragEvent(ofDragInfo dragInfo){ 
-
+	/* Wait until the Kinect is running, then do the rest of the setup. */
+	uint64_t start = ofGetElapsedTimeMillis();
+	while (depthStream.getShortPixelsRef().getWidth() == 0 || depthStream.getShortPixelsRef().getHeight() == 0) {
+		if (ofGetElapsedTimeMillis() - start > 5000) {
+			throw std::runtime_error("Kinect failed to start in time!");
+		}
+		ofSleepMillis(20);
+	}
 }

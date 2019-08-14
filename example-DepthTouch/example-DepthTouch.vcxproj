@@ -173,6 +173,7 @@
 	<ItemGroup>
 		<ClCompile Include="src\main.cpp" />
 		<ClCompile Include="src\ofApp.cpp" />
+		<ClCompile Include="..\..\..\addons\ofxDepthTouch\src\ofxDepthTouch.cpp" />
 		<ClCompile Include="..\..\..\addons\ofxDepthTouch\src\TextUtils.cpp" />
 		<ClCompile Include="..\..\..\addons\ofxDepthTouch\src\WindowUtils.cpp" />
 		<ClCompile Include="..\..\..\addons\ofxKinect2\src\ofxKinect2.cpp" />
@@ -190,7 +191,9 @@
 		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\fixedqueue.h" />
 		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\FPSTracker.h" />
 		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\geomConfig.h" />
+		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\ofxDepthTouch.h" />
 		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\TextUtils.h" />
+		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\Touch.h" />
 		<ClInclude Include="..\..\..\addons\ofxDepthTouch\src\WindowUtils.h" />
 		<ClInclude Include="..\..\..\addons\ofxKinect2\src\ofxKinect2.h" />
 		<ClInclude Include="..\..\..\addons\ofxKinect2\src\ofxKinect2Enums.h" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxKinect2.h"
 
 class ofApp : public ofBaseApp{
 
@@ -11,14 +12,14 @@ class ofApp : public ofBaseApp{
 
 		void keyPressed(int key);
 		void keyReleased(int key);
-		void mouseMoved(int x, int y );
-		void mouseDragged(int x, int y, int button);
-		void mousePressed(int x, int y, int button);
-		void mouseReleased(int x, int y, int button);
-		void mouseEntered(int x, int y);
-		void mouseExited(int x, int y);
-		void windowResized(int w, int h);
-		void dragEvent(ofDragInfo dragInfo);
-		void gotMessage(ofMessage msg);
 		
+		ofxKinect2::Device* kinect;
+		ofxKinect2::IrStream irStream;
+		ofxKinect2::ColorStream colorStream;
+		ofxKinect2::DepthStream depthStream;
+
+		void setupKinect();
+
+
+
 };
