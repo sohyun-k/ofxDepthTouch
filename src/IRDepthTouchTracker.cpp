@@ -8,6 +8,7 @@
 
 #include "IRDepthTouchTracker.h"
 #include "TextUtils.h"
+#include "ofxOpenCv.h"
 
 /* Tweakable parameters */
 /// Edge/fence parameters
@@ -62,12 +63,13 @@ void IRDepthTouchTracker::buildEdgeImage() {
 	fill_n(edgePx, n, 0);
 
 	/* Build IR canny map */
-	uint16_t *irPx = irPix.getPixels();
+	uint16_t *irPx = irStream.getPixelsRef().getPixels();
 	uint8_t *ircannyPx = irCanny.getPixels().getPixels();
 	for(int i=0; i<n; i++) {
 		ircannyPx[i] = irPx[i] / 64;
 	}
-	cv::Mat irCannyMat(cv::cvarrToMat(irCanny.getCvImage()));
+
+	cv::Mat irCannyMat = cv::cvarrToMat(irCanny.getCvImage());
 	/* Edge finding, lightly tuned parameters */
 	cv::Canny(irCannyMat, irCannyMat, 4000, 8000, 7, true);
 
@@ -209,7 +211,7 @@ void IRDepthTouchTracker::fillIrCannyHoles() {
 void IRDepthTouchTracker::buildDiffImage() {
 	const int n = w * h;
 
-	uint16_t *depthPx = depthPix.getPixels();
+	uint16_t *depthPx = depthStream.getShortPixelsRef().getPixels();
 	uint32_t *diffPx = (uint32_t *)diffIm[front].getPixelsRef().getPixels();
 
 	const float *bgmean = background.getBackgroundMean().getPixels();
@@ -562,7 +564,7 @@ void IRDepthTouchTracker::refloodFinger(const vector<unsigned> &blob, vector<uns
 }
 
 bool IRDepthTouchTracker::computeFingerMetrics(IRDepthFinger &finger, vector<unsigned> &px) {
-	uint16_t *depthPx = depthPix.getPixels();
+	uint16_t *depthPx = depthStream.getShortPixelsRef().getPixels();
 	uint32_t *blobPx = (uint32_t *)blobIm[front].getPixelsRef().getPixels();
 
 	const float *bgmean = background.getBackgroundMean().getPixels();
@@ -762,7 +764,7 @@ void IRDepthTouchTracker::threadedFunction() {
 	while(isThreadRunning()) {
 		// Check if the depth frame is new
 //		uint64_t curDepthTimestamp = depthStream.getFrameTimestamp();
-		if(isNew) {
+		if(depthStream.isFrameNew()) {
 			ofSleepMillis(5);
 			continue;
 		}
@@ -799,8 +801,8 @@ void IRDepthTouchTracker::threadedFunction() {
 }
 
 void IRDepthTouchTracker::drawDebug(float x, float y) {
-	const int dw = w;
-	const int dh = h;
+	const int dw = depthStream.getWidth();
+	const int dh = depthStream.getHeight();
 
 	int back = !front;
 
@@ -840,8 +842,8 @@ IRDepthTouchTracker::~IRDepthTouchTracker() {
 	waitForThread();
 }
 
-IRDepthTouchTracker::IRDepthTouchTracker(ofShortPixels& depthPix, ofShortPixels& irPix, BackgroundUpdaterThread &background, int w, int h, bool isNew)
-: TouchTracker(depthPix, irPix, background, w, h, isNew) {
+IRDepthTouchTracker::IRDepthTouchTracker(ofxKinect2::DepthStream &depthStream, ofxKinect2::IrStream &irStream, BackgroundUpdaterThread &background)
+: TouchTracker(depthStream, irStream, background) {
 	front = 0;
 
 	for(int i=0; i<2; i++) {

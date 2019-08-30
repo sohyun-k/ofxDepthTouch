@@ -17,15 +17,10 @@ private:
 	TouchTracker(const TouchTracker &);
 
 protected:
-	int w, h;
-//	ofxKinect2::DepthStream &depthStream;
-	ofShortPixels& depthPix;
-//	ofxKinect2::IrStream &irStream;
-	ofShortPixels& irPix;
-
+	const int w, h;
+	ofxKinect2::DepthStream &depthStream;
+	ofxKinect2::IrStream &irStream;
 	BackgroundUpdaterThread &background;
-
-	bool isNew;
 
 	ofMutex touchLock;
 	bool touchesUpdated;
@@ -36,10 +31,8 @@ public:
 	FPSTracker fps;
 
 	/* Public methods */
-	TouchTracker(ofShortPixels& depthPix, ofShortPixels& irPix, BackgroundUpdaterThread &background, int w, int h, bool isNew)
-    :depthPix(depthPix), irPix(irPix), background(background), isNew(isNew){
-		this->w = w;
-		this->h = h;
+	TouchTracker(ofxKinect2::DepthStream &depthStream, ofxKinect2::IrStream &irStream, BackgroundUpdaterThread &background)
+        : w(depthStream.getWidth()), h(depthStream.getHeight()), depthStream(depthStream), irStream(irStream), background(background) {
 		touchesUpdated = false;
 		nextTouchId = 1;
     }

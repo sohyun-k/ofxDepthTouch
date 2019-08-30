@@ -10,7 +10,6 @@
 
 #include "ofMain.h"
 #include "ofxKinect2.h"
-#include "ofxOpenCv.h"
 
 #include "TouchTracker.h"
 
@@ -64,8 +63,7 @@ private:
 	ofxCvGrayscaleImage irCanny; // temporary image for canny purposes
 
 public:
-//	IRDepthTouchTracker(ofxKinect2::DepthStream &depthStream, ofxKinect2::IrStream &irStream, BackgroundUpdaterThread &background);
-	IRDepthTouchTracker(ofShortPixels& depthPix, ofShortPixels& irPix, BackgroundUpdaterThread &background, int w, int h, bool isNew);
+	IRDepthTouchTracker(ofxKinect2::DepthStream &depthStream, ofxKinect2::IrStream &irStream, BackgroundUpdaterThread &background);
 	virtual ~IRDepthTouchTracker();
 
 	virtual void drawDebug(float x, float y);

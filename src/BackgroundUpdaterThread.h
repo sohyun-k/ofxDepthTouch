@@ -14,15 +14,13 @@
 
 struct bgPixelState;
 
-
 class BackgroundUpdaterThread : public ofThread {
 private:
-	int width, height;
+	const int width, height;
 	bgPixelState *bgpixels;
 	ofFloatPixels bgmean, bgstdev;
-//	ofxKinect2::DepthStream &depthStream;
-	ofShortPixels& depthPix;
-	bool isFrameNew;
+	ofxKinect2::DepthStream &depthStream;
+
 	int curFrame;
 
 	/* Debugging */
@@ -37,8 +35,7 @@ public:
 	FPSTracker fps;
 
 	/* Public methods */
-//	BackgroundUpdaterThread(ofxKinect2::DepthStream &depthStream);
-	BackgroundUpdaterThread(ofShortPixels& depthPix, int w, int h, bool isNew);
+	BackgroundUpdaterThread(ofxKinect2::DepthStream &depthStream);
 	virtual ~BackgroundUpdaterThread();
 
 	void setDynamicUpdate(bool dynamic);
