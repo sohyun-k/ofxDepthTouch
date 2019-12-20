@@ -119,7 +119,8 @@ void BackgroundUpdaterThread::threadedFunction() {
 	while(isThreadRunning()) {
 		// Check if the depth frame is new //changed
 //		uint64_t curDepthTimestamp = depthStream.getFrameTimestamp();
-		if(depthStream.isFrameNew()) {
+//		if(depthStream.isFrameNew()) {
+		if(this->isNew) {
 			ofSleepMillis(5);
 			continue;
 		}
@@ -136,7 +137,7 @@ void BackgroundUpdaterThread::threadedFunction() {
 		/*changed*/
 //		auto &depthPixels = depthStream.getPixelsRef();
 //		uint16_t *depthpx = depthPixels.getPixels();
-		uint16_t *depthpx = depthStream.getShortPixelsRef().getPixels();
+		uint16_t *depthpx = depthShortPixels.getPixels();
 		uint32_t *debugpx = (uint32_t *)backgroundStateDebug.getPixelsRef().getPixels();
 		float *means = bgmean.getPixels();
 		float *stdevs = bgstdev.getPixels();
@@ -171,8 +172,15 @@ void BackgroundUpdaterThread::update() {
 	fps.tick();
 }
 
-BackgroundUpdaterThread::BackgroundUpdaterThread(ofxKinect2::DepthStream &depthStream)
-: width(depthStream.getWidth()), height(depthStream.getHeight()), depthStream(depthStream) {
+void BackgroundUpdaterThread::updateFrame(bool isNew, ofShortPixels & depthShortPixels)
+{
+	this->isNew = isNew;
+	this->depthShortPixels = depthShortPixels;
+}
+
+BackgroundUpdaterThread::BackgroundUpdaterThread(int width, int height, bool isNew, ofShortPixels& depthShortPixels)
+: width(width), height(height), isNew(isNew), depthShortPixels(depthShortPixels) {
+// 참조면 update안해줘도 되나..?
 	bgpixels = new bgPixelState[width * height];
 	bgmean.allocate(width, height, OF_IMAGE_GRAYSCALE);
 	bgstdev.allocate(width, height, OF_IMAGE_GRAYSCALE);

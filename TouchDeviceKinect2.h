@@ -9,6 +9,7 @@ protected:
 	void configure() {
 		DEPTH_WIDTH = depth_.getWidth();
 		DEPTH_HEIGHT = depth_.getHeight();
+		IS_DEPTH_NEW = depth_.isFrameNew();
 
 		COLOR_WIDTH = color_.getWidth();
 		COLOR_HEIGHT = color_.getHeight();

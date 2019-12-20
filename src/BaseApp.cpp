@@ -20,7 +20,7 @@ void BaseApp::setup(){
 	setupKinect();
 
 	/* Setup worker threads */
-	bgthread = new BackgroundUpdaterThread(depthStream);
+//	bgthread = new BackgroundUpdaterThread(depthStream);
 	bgthread->startThread();
 }
 
@@ -102,7 +102,7 @@ ofPoint BaseApp::getWorldPoint(const ofVec2f &depthPos, bool live) {
 }
 
 void BaseApp::update(){
-	bgthread->update();
+//	bgthread->update();
 }
 
 //--------------------------------------------------------------

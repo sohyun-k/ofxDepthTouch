@@ -404,6 +404,8 @@ protected: // 중요 공통 변수
 
 	double DEPTH_HFOV, DEPTH_VFOV;
 
+	bool IS_DEPTH_NEW;
+
 	//Lachat, Elise, et al. "Assessment and calibration of a RGB-D camera (Kinect v2 Sensor) towards a potential use for close-range 3D modeling." Remote Sensing 7.10 (2015): 13070-13097.
 	//Operative measuring range from 0.5 to 4.5 m
 	//Object pixel size(GSD) between 1.4 mm(@ 0.5 m range) and 12 mm(@ 4.5 m range)

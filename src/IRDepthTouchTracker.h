@@ -61,11 +61,16 @@ private:
 	ofImage edgeIm[2]; // edge image; B=IRedge G=depthedge R=depthabs
 	ofImage blobIm[2]; // blob image; B=flags G=blobidx R=dist
 	ofxCvGrayscaleImage irCanny; // temporary image for canny purposes
+	
+	bool isNewFrame;
+	int width, height;
+//	ofShortPixels& depthShortPixels, irShortPixels;
 
 public:
-	IRDepthTouchTracker(ofxKinect2::DepthStream &depthStream, ofxKinect2::IrStream &irStream, BackgroundUpdaterThread &background);
+	IRDepthTouchTracker(int width, int height, ofShortPixels& depthShortPixels, ofShortPixels& irShortPixels, BackgroundUpdaterThread &background, bool isNewFrame);
 	virtual ~IRDepthTouchTracker();
 
 	virtual void drawDebug(float x, float y);
 	virtual bool update(vector<FingerTouch> &retTouches);
+	virtual void updateFrame(ofShortPixels& depthShortPixels, ofShortPixels& irShortPixels, bool isNewFrame);
 };

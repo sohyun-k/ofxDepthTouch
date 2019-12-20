@@ -1,8 +1,9 @@
 #pragma once
 
 #include "ofMain.h"
-#include "TouchDeviceManager.h"
-#include "TouchDeviceKinect2.h"
+#include "VisionDeviceManager.hpp"
+#include "VisionDeviceKinect2.hpp"
+#include "TouchManager.h"
 
 class ofApp : public ofBaseApp{
 
@@ -27,7 +28,8 @@ class ofApp : public ofBaseApp{
 		int previous_y;
 		ofCamera viewer;
 
-		TouchDeviceManager::Ptr manager;
+		VisionDeviceManager::Ptr manager;
+		TouchManager touchManager;
 
 
 };

@@ -1,6 +1,7 @@
 #include "ofApp.h"
 
 #define USE_KINECT2 true
+#define USE_TOUCH true
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -16,7 +17,7 @@ void ofApp::setup(){
 	*/
 
 #if USE_KINECT2
-	manager = TouchDeviceManager::Kinect2_Ptr();
+	manager = VisionDeviceManager::Kinect2_Ptr();
 
 	manager->setup();
 	manager->setFlipHorizontal(true);
@@ -25,7 +26,15 @@ void ofApp::setup(){
 	manager->setMapColorToDepth(true);
 	manager->setMapDepthToCamera(true);
 //	manager->setMapCameraToCloud(true);
+
 #endif
+
+#if USE_TOUCH
+	touchManager.init(manager);
+	touchManager.setup();
+	touchManager.startThread();
+#endif
+
 
 }
 
@@ -35,15 +44,18 @@ void ofApp::update(){
 #if USE_KINECT2
 	manager->update();
 #endif
+#if USE_TOUCH
+	touchManager.update();
+#endif
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofClear(ofColor::black);
-	ofBackground(ofColor::black);
+//	ofClear(ofColor::black);
+//	ofBackground(ofColor::black);
 
-	viewer.begin();
-
+//	viewer.begin();
+	/*
 	ofDrawAxis(5000);
 	ofPushMatrix();
 	ofRotate(90, 0, 0, -1);
@@ -54,7 +66,9 @@ void ofApp::draw(){
 	ofPopMatrix();
 
 	ofPushMatrix();
+	*/
 
+	/*
 #if USE_KINECT2
 	//skeletons...
 	manager->draw();
@@ -68,18 +82,42 @@ void ofApp::draw(){
 	ofPopMatrix();
 
 	ofPushMatrix();
+*/
 
-#if USE_KINECT2
-
-#endif
+#if USE_TOUCH
+	/* Draw onto projector */
+	/*
+	ofPushMatrix();
+	ofPushStyle();
+	ofSetMatrixMode(OF_MATRIX_MODELVIEW);
+	ofMultMatrix(projector_transpose);
+	touchManager.drawProjector();
+	ofPopStyle();
 	ofPopMatrix();
+	*/
+	/* Draw debug info */
+	ofPushMatrix();
+	ofPushStyle();
+	ofTranslate(PROJW, 0);
+	touchManager.drawDebug();
+	ofPopStyle();
+	ofPopMatrix();
+#endif
 
-	viewer.end();
+
+//	ofPopMatrix();
+
+//	viewer.end();
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+#if USE_TOUCH
+	if (key == OF_KEY_ESC) {
+		touchManager.stopThread();
+		touchManager.teardown();
+	}
+#endif
 }
 
 //--------------------------------------------------------------
