@@ -185,10 +185,11 @@ void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 				ofPoint pt1 = visited.at(i);
 				ofPoint distpt = pt1 - pt;
 				float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
-				if (dist < 50) {
+				if (dist < 50) { //50 픽셀 이하면 같은 점으로 취급함
 					isNew = false;
 				}
 			}
+
 			if (isNew == true) {
 				visited.push_back(pt);
 			}
@@ -245,11 +246,18 @@ ofPoint TouchManager::getWorldPoint(const ofVec2f &depthPos, bool live) {
 			/* Map depth point to camera point */
 			ofVec3f wpt;
 			HRESULT hr;
-			bool hrbool;
-			ofVec2f dpt_temp = { dpt.X, dpt.Y };
-						
-			hrbool = visionDeviceManager->mapDepthToCameraHResult(dpt_temp, depth, &wpt);
-			if (!hrbool) {
+
+			//VisionDeviceManager 코드 변경 없이 아래 코드의 동작을 위한 구현이 필요하지만
+			//getWorldPoint()는 어차피 프로젝션 출력 용이라고 해서 미구현 상태로 넘어감
+			/*{
+				DepthSpacePoint dpt_temp = { dpt.x, dpt.y };
+				CameraSpacePoint wpt_temp;
+				hr = device_->getMapper()->MapDepthPointToCameraSpace(dpt_temp, depth, &wpt_temp);
+				*wpt = { wpt_temp.X, wpt_temp.Y, wpt_temp.Z };
+				return SUCCEEDED(hr);
+			}*/
+
+			if (!SUCCEEDED(hr)) {
 				ofLogError() << "MapDepthPointToCameraSpace failed";
 				return ofPoint(0, 0, 0);
 			}
