@@ -225,6 +225,7 @@ ofPoint TouchManager::getWorldPoint(const ofVec2f &depthPos, bool live) {
 
 	/* Linearly interpolate the world point */
 	ofPoint ret;
+
 	for (int x = x0; x <= x0 + 1; x++) {
 		for (int y = y0; y <= y0 + 1; y++) {
 			DepthSpacePoint dpt = { x, y };
@@ -232,8 +233,9 @@ ofPoint TouchManager::getWorldPoint(const ofVec2f &depthPos, bool live) {
 			int depth=0;
 			int index = (int)dpt.Y * depthWidth + (int)dpt.X;
 			if (live) {
-				depth = visionDeviceManager->getDepthShortPixels()[index];
-//					depthStream.getShortPixelsRef().getPixels()[index]; // current (finger) depth
+				depth = 
+					visionDeviceManager->getDepthShortPixels()[index];
+					//depthStream.getShortPixelsRef().getPixels()[index]; // current (finger) depth
 			}
 			else {
 				depth = bgthread->getBackgroundMean().getPixels()[index]; // stable (background) depth
@@ -242,18 +244,18 @@ ofPoint TouchManager::getWorldPoint(const ofVec2f &depthPos, bool live) {
 			float weight = (1 - fabsf(depthPos.x - x)) * (1 - fabsf(depthPos.y - y));
 
 			/* Map depth point to camera point */
-			CameraSpacePoint wpt;
+			ofVec3f wpt;
 			HRESULT hr;
 			bool hrbool;
 			ofVec2f dpt_temp = { dpt.X, dpt.Y };
-			ofVec3f wpt_temp;
-			hrbool = visionDeviceManager->mapDepthToCameraHResult(dpt_temp, depth, &wpt_temp);
+						
+			hrbool = visionDeviceManager->mapDepthToCameraHResult(dpt_temp, depth, &wpt);
 			if (!hrbool) {
 				ofLogError() << "MapDepthPointToCameraSpace failed";
 				return ofPoint(0, 0, 0);
 			}
 
-			ret += weight * ofPoint(wpt.X, wpt.Y, wpt.Z);
+			ret += weight * ofPoint(wpt.x, wpt.y, wpt.z);
 		}
 	}
 
