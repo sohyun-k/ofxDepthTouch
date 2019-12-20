@@ -9,7 +9,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxKinect2.h"
 
 #include "TouchTracker.h"
 
