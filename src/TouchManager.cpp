@@ -140,7 +140,7 @@ void TouchManager::drawDebug()
 	//bgthread->drawDebug(0, dh);   //background 영상
 	touchTracker->drawDebug(0, -dh);	// diff, diff+edge, edge, blob 영상
 	// color영상 draw
-	this->colorTouchDraw(300,300);
+	this->colorTouchDraw(300, 300, 640, 360);
 
 	drawText(ofVAArgsToString("FPS: %.1f\n", ofGetFrameRate())
 		+ ofVAArgsToString("BG Update FPS: %.1f\n", bgthread->fps.fps)
@@ -170,43 +170,51 @@ void TouchManager::teardown()
 	delete bgthread;
 }
 
-void TouchManager::colorTouchDraw(int x, int y)
+void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 {
-	const int dw = visionDeviceManager->getDepthWidth();
-	const int dh = visionDeviceManager->getDepthHeight();
+	vector<ofPoint> visited;
 
-	map<int, FingerTouch>::iterator iter;
 	if (touchMap.size() > 0) {
-		vector<ofPoint> visited;
-		visited.clear();
-		ofPoint pt1 = touchMap.begin()->second.tip;
-		ofDrawCircle(pt1.x+x, pt1.y+y, 10);
-		visited.push_back(pt1);
+		map<int, FingerTouch>::iterator iter;
 
-		
 		for (iter = touchMap.begin(); iter != touchMap.end(); iter++) {
+			if (!iter->second.touched) continue;
+
 			ofPoint pt = iter->second.tip;
 			bool isNew = true;
 			for(int i=0; i<visited.size(); ++i){
-				pt1 = visited.at(i);
+				ofPoint pt1 = visited.at(i);
 				ofPoint distpt = pt1 - pt;
 				float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
 				if (dist < 50) {
 					isNew = false;
 				}
-
 			}
 			if (isNew == true) {
 				visited.push_back(pt);
-				ofDrawCircle(pt.x+x, pt.y+y, 10);
 			}
 			//		drawText("point" + ofToString(pt.x) + " " + ofToString(pt.y), pt.x * 2, pt.y * 2, HAlign::left, VAlign::top);
 		}
 		
 	}
-	ofImage colorImg = visionDeviceManager->getColorImage();
-	colorImg.draw(x, y, dw, dh);
 
+	ofImage colorImg = visionDeviceManager->getColorImage();
+	float scale_x = w / colorImg.getWidth();
+	float scale_y = h / colorImg.getHeight();
+
+	vector<ofPoint> touch_point_color =
+		visionDeviceManager->depthToColor(visited);
+
+	ofPushStyle();
+	ofSetColor(ofColor::green);
+	for (ofPoint pt : touch_point_color) {
+		ofPoint draw_pt = 
+			pt*ofPoint(scale_x, scale_y) + ofPoint(x, y);
+		ofDrawCircle(draw_pt, 10);
+	}
+	ofPopStyle();
+
+	colorImg.draw(x, y, w, h);
 }
 
 ofPoint TouchManager::getWorldPoint(const ofVec2f &depthPos, bool live) {

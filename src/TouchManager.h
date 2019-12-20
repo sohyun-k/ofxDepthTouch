@@ -46,5 +46,5 @@ public:
 	void drawDebug();
 
 	void teardown();
-	void colorTouchDraw(int x, int y);
+	void colorTouchDraw(int x, int y, int w, int h);
 };

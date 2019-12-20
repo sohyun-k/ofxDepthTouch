@@ -5,7 +5,10 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+	ofEnableAlphaBlending();
+	ofEnableAntiAliasing();
 	ofEnableDepthTest();
+
 	viewer.setNearClip(0.1);
 	viewer.setFarClip(20000);
 
@@ -51,8 +54,8 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-//	ofClear(ofColor::black);
-//	ofBackground(ofColor::black);
+	ofClear(ofColor::black);
+	ofBackground(ofColor::black);
 
 //	viewer.begin();
 	/*
