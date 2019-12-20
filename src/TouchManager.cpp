@@ -87,9 +87,8 @@ void TouchManager::updateDebug()
 {
 	/* Check if the frame is actually new */
 	//	uint64_t curDepthTimestamp = depthStream.getFrameTimestamp();
-	if (visionDeviceManager->isDepthFrameNew())
+	if (!visionDeviceManager->isDepthFrameNew())
 		return;
-	//	lastDepthTimestamp = curDepthTimestamp;
 
 	/* Debugging */
 	auto &depthPixels = visionDeviceManager->getDepthShortPixels();

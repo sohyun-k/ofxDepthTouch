@@ -120,7 +120,7 @@ void BackgroundUpdaterThread::threadedFunction() {
 		// Check if the depth frame is new //changed
 //		uint64_t curDepthTimestamp = depthStream.getFrameTimestamp();
 //		if(depthStream.isFrameNew()) {
-		if(this->isNew) {
+		if(!this->isNew) {
 			ofSleepMillis(5);
 			continue;
 		}

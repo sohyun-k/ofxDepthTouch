@@ -761,10 +761,10 @@ void IRDepthTouchTracker::threadedFunction() {
 	int curDepthFrame = 0;
 	fps.fps = 30; // estimated fps
 
-	while(isThreadRunning()) {
+	while (isThreadRunning()) {
 		// Check if the depth frame is new
 //		uint64_t curDepthTimestamp = depthStream.getFrameTimestamp();
-		if(isNewFrame) {
+		if (!isNewFrame) {
 			ofSleepMillis(5);
 			continue;
 		}
