@@ -810,17 +810,17 @@ void IRDepthTouchTracker::drawDebug(float x, float y) {
 	edgeIm[back].update();
 	blobIm[back].update();
 
-//	diffIm[back].draw(x, y);
+	diffIm[back].draw(x, y);
 	edgeIm[back].draw(x, y+dh, dw/2, dh/2);
 
-//	diffIm[back].draw(x+dw, y);
-//	edgeIm[back].draw(x+dw, y);
+	diffIm[back].draw(x+dw, y);
+	edgeIm[back].draw(x+dw, y);
 
 	blobIm[back].draw(x+dw/2, y+dh, dw / 2, dh / 2);
 	
-//	drawText("Diff", x, y, HAlign::left, VAlign::top);
+	drawText("Diff", x, y, HAlign::left, VAlign::top);
 	drawText("Edge", x, y+dh, HAlign::left, VAlign::top);
-//	drawText("Diff+Edge", x+dw, y, HAlign::left, VAlign::top);
+	drawText("Diff+Edge", x+dw, y, HAlign::left, VAlign::top);
 	drawText("Blob", x+dw/2, y+dh, HAlign::left, VAlign::top);
 }
 

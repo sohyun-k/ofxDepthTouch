@@ -131,11 +131,12 @@ void TouchManager::drawDebug()
 	const int dw = visionDeviceManager->getDepthWidth();
 	const int dh = visionDeviceManager->getDepthHeight();
 
-	// depthviz.draw(0, 0);	// depth 영상
-	drawText("Depth", 0, 0, HAlign::left, VAlign::top);
+	//depthviz.draw(0, 0);	// depth 영상
+	//drawText("Depth", 0, 0, HAlign::left, VAlign::top);
 
 	//bgthread->drawDebug(0, dh);   //background 영상
 	touchTracker->drawDebug(0, -dh);	// diff, diff+edge, edge, blob 영상
+	
 	// color영상 draw
 	this->colorTouchDraw(300, 300, 640, 360);
 
