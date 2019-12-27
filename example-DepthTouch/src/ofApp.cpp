@@ -57,7 +57,7 @@ void ofApp::draw(){
 	/* Draw debug info */
 	ofPushMatrix();
 	ofPushStyle();
-	ofTranslate(PROJW, 0);
+	//ofTranslate(PROJW, 0); //setupWindow()를 호줄하지 않는 이상 주석처리 할 것!
 	touchManager.drawDebug();
 	ofPopStyle();
 	ofPopMatrix();

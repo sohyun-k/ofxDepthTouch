@@ -25,7 +25,7 @@ void TouchManager::threadedFunction()
 void TouchManager::setup()
 {
 	ofSetFrameRate(60);
-	setupWindow();
+	//setupWindow(); //호출하지 말 것!
 	
 	// kinect setup
 	depthWidth = visionDeviceManager->getDepthWidth();
@@ -141,7 +141,8 @@ void TouchManager::drawDebug()
 
 	drawText(ofVAArgsToString("FPS: %.1f\n", ofGetFrameRate())
 		+ ofVAArgsToString("BG Update FPS: %.1f\n", bgthread->fps.fps)
-		+ ofVAArgsToString("Touch Update FPS: %.1f\n", touchTracker->fps.fps), DISPW, 0, HAlign::right, VAlign::top);
+		+ ofVAArgsToString("Touch Update FPS: %.1f\n", touchTracker->fps.fps), 
+		ofGetWindowWidth(), 0, HAlign::right, VAlign::top);
 
 	/*
 	int debugMouseX = mouseX - PROJW;
