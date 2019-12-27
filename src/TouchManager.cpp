@@ -17,9 +17,6 @@ void TouchManager::setupWindow() {
 void TouchManager::threadedFunction()
 {
 	while (isThreadRunning()) {
-		ofShortPixels test1 = visionDeviceManager->getDepthShortPixels();
-		ofShortPixels test2 = visionDeviceManager->getIrShortPixels();
-
 		bgthread->updateFrame(visionDeviceManager->isDepthFrameNew(), visionDeviceManager->getDepthShortPixels());
 		touchTracker->updateFrame(visionDeviceManager->getDepthShortPixels(), visionDeviceManager->getIrShortPixels(), visionDeviceManager->isDepthFrameNew());
 	}
@@ -29,6 +26,7 @@ void TouchManager::setup()
 {
 	ofSetFrameRate(60);
 	setupWindow();
+	
 	// kinect setup
 	depthWidth = visionDeviceManager->getDepthWidth();
 	depthHeight = visionDeviceManager->getDepthHeight();

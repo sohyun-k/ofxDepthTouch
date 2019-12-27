@@ -24,12 +24,6 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
 
-		int previous_x;
-		int previous_y;
-		ofCamera viewer;
-
 		VisionDeviceManager::Ptr manager;
 		TouchManager touchManager;
-
-
 };
