@@ -1,4 +1,4 @@
 ofxDepthDevice
 ofxDepthTouch
 ofxKinect2
-ofxOpenCv-3.2.0
+ofxOpenCv-4.1.1
