@@ -14,6 +14,69 @@ void TouchManager::setupWindow() {
 	ofSetWindowPosition(adjTarget.x, adjTarget.y);
 }
 
+void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
+{
+	touch_mesh->clear();
+	touch_mesh->setMode(OF_PRIMITIVE_POINTS);
+	touch_mesh->disableIndices();
+	touch_mesh->enableColors();
+	// calibrationMeta 안함
+	system_pose = _system_pose;
+
+	touchPoint.clear();
+
+	if (touchMap.size() > 0) {
+		map<int, FingerTouch>::iterator iter;
+
+		for (iter = touchMap.begin(); iter != touchMap.end(); iter++) {
+			if (!iter->second.touched) continue;
+
+			ofPoint pt = iter->second.tip;
+			bool isNew = true;
+			for (int i = 0; i < touchPoint.size(); ++i) {
+				ofPoint pt1 = touchPoint.at(i);
+				ofPoint distpt = pt1 - pt;
+				float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
+				if (dist < 50) { //50 픽셀 이하면 같은 점으로 취급함
+					isNew = false;
+				}
+			}
+
+			if (isNew == true) {
+				touchPoint.push_back(pt);
+			}
+		}
+
+		//touch Point의 3D 좌표를 구함
+		touch3DPoint.clear();
+		touch3DPoint = visionDeviceManager->depthToCamera(touchPoint);
+
+		// touchMesh에 저장
+
+		for (int i = 0; i < touch3DPoint.size(); ++i) {
+			touch_mesh->addVertex(touch3DPoint.at(i) * ofPoint(-1, 1, -1) * system_pose);
+			touch_mesh->addColor(ofColor::hotPink);
+		}
+	}
+
+	/*
+	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(0, 0, 0)));
+	touch_mesh->addColor(ofColor::hotPink);
+	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(1, 0, 0)));
+	touch_mesh->addColor(ofColor::hotPink);
+	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(2, 0, 0)));
+	touch_mesh->addColor(ofColor::hotPink);
+	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(3, 0, 0)));
+	touch_mesh->addColor(ofColor::hotPink);
+	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(4, 0, 0)));
+	touch_mesh->addColor(ofColor::hotPink);
+	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(5, 0, 0)));
+	touch_mesh->addColor(ofColor::hotPink);
+	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(6, 0, 0)));
+	touch_mesh->addColor(ofColor::hotPink);
+	*/
+}
+
 void TouchManager::threadedFunction()
 {
 	while (isThreadRunning()) {
@@ -45,13 +108,15 @@ void TouchManager::setupDebug()
 	depthviz.allocate(depthWidth, depthHeight, OF_IMAGE_GRAYSCALE);
 }
 
-void TouchManager::update()
+void TouchManager::update(ofMatrix4x4 _system_pose)
 {
 	vector<FingerTouch> newTouches;
 	if (touchTracker->update(newTouches)) {
 		handleTouches(newTouches);
 	}
 	updateDebug();
+	this->makeTouchMesh(_system_pose);
+
 }
 
 void TouchManager::handleTouches(const vector<FingerTouch>& newTouches)
@@ -167,10 +232,15 @@ void TouchManager::teardown()
 {
 	delete touchTracker;
 	delete bgthread;
+	isTouchActivated = false;
 }
 
 void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 {
+	ofImage colorImg = visionDeviceManager->getColorImage();
+	float scale_x = w / colorImg.getWidth();
+	float scale_y = h / colorImg.getHeight();
+	
 	vector<ofPoint> visited;
 
 	if (touchMap.size() > 0) {
@@ -181,7 +251,7 @@ void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 
 			ofPoint pt = iter->second.tip;
 			bool isNew = true;
-			for(int i=0; i<visited.size(); ++i){
+			for (int i = 0; i < visited.size(); ++i) {
 				ofPoint pt1 = visited.at(i);
 				ofPoint distpt = pt1 - pt;
 				float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
@@ -192,15 +262,11 @@ void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 
 			if (isNew == true) {
 				visited.push_back(pt);
+				drawText("point" + ofToString(pt.x) + " " + ofToString(pt.y), pt*ofPoint(scale_x, scale_y) + ofPoint(x, y), HAlign::left, VAlign::top);
 			}
-			//		drawText("point" + ofToString(pt.x) + " " + ofToString(pt.y), pt.x * 2, pt.y * 2, HAlign::left, VAlign::top);
 		}
-		
 	}
 
-	ofImage colorImg = visionDeviceManager->getColorImage();
-	float scale_x = w / colorImg.getWidth();
-	float scale_y = h / colorImg.getHeight();
 
 	vector<ofPoint> touch_point_color =
 		visionDeviceManager->depthToColor(visited);
@@ -215,6 +281,33 @@ void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 	ofPopStyle();
 
 	colorImg.draw(x, y, w, h);
+}
+
+void TouchManager::meshDrawDebug()
+{
+	
+	
+	ofPushMatrix();
+	ofScale(1, -1, 1);
+	ofMultMatrix(system_pose);	
+	visionDeviceManager->getPointCloudMesh().draw();
+	ofPopMatrix();
+
+	ofPushMatrix();
+	glPointSize(10);
+	touch_mesh->draw();
+	glPointSize(1);
+	ofPopMatrix();
+}
+
+bool TouchManager::getIsTouchActivate()
+{
+	return isTouchActivated;
+}
+
+void TouchManager::setIsTouchActivate(bool isTouchActivated)
+{
+	this->isTouchActivated = isTouchActivated;
 }
 
 ofPoint TouchManager::getWorldPoint(const ofVec2f &depthPos, bool live) {

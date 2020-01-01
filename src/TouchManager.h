@@ -14,7 +14,11 @@ private:
 
 	int depthWidth, depthHeight;
 	bool isDepthFrameNew;
-
+	bool isTouchActivated = false;
+	ARVboMesh::Ptr touch_mesh = make_shared<ARVboMesh>();
+	ofMatrix4x4 system_pose;
+	vector<ofPoint> touchPoint;
+	vector<ofPoint> touch3DPoint;
 
 public:
 	map<int, FingerTouch> touchMap;
@@ -26,6 +30,7 @@ private:
 	ofPoint getLiveWorldPoint(const ofVec2f &depthPt) { return getWorldPoint(depthPt, true); }
 
 	void setupWindow();
+	void makeTouchMesh(ofMatrix4x4 _system_pose);
 
 protected:
 	void threadedFunction();
@@ -39,7 +44,7 @@ public:
 
 	void setup();
 	void setupDebug();
-	void update();
+	void update(ofMatrix4x4 _system_pose = ofMatrix4x4());
 	void handleTouches(const vector<FingerTouch> &newTouches);
 	void updateDebug();
 	void drawProjector();
@@ -47,4 +52,12 @@ public:
 
 	void teardown();
 	void colorTouchDraw(int x, int y, int w, int h);
+	void meshDrawDebug();
+
+	bool getIsTouchActivate();
+	void setIsTouchActivate(bool isTouchActivated);
+
+	ARVboMesh::Ptr getTouchMesh() {
+		return touch_mesh;
+	}
 };
