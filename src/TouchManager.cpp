@@ -22,7 +22,7 @@ void TouchManager::makeTouchMesh()
 	touch_mesh->enableColors();
 	// calibrationMeta 안함
 	for (int i = 0; i < touch3DPoint.size(); ++i) {
-		touch_mesh->addVertex(touch3DPoint.at(i) * ofPoint(-1, 1, -1) * system_pose);
+		touch_mesh->addVertex(touch3DPoint.at(i));
 		touch_mesh->addColor(ofColor::hotPink);
 	}
 
@@ -135,6 +135,9 @@ void TouchManager::makeTouchPoint(ofMatrix4x4 _system_pose)
 		//touch Point의 3D 좌표를 구함
 		touch3DPoint.clear();
 		touch3DPoint = visionDeviceManager->depthToCamera(touchPoint);
+		for (int idx = 0; idx < touch3DPoint.size(); ++idx) {
+			touch3DPoint.at(idx) = touch3DPoint.at(idx) * ofPoint(-1, 1, -1) * system_pose;
+		}
 
 		allTouches = visionDeviceManager->depthToCamera(allTouches);
 		// touchMesh에 저장
