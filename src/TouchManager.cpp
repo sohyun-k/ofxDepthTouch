@@ -14,17 +14,28 @@ void TouchManager::setupWindow() {
 	ofSetWindowPosition(adjTarget.x, adjTarget.y);
 }
 
-void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
+void TouchManager::makeTouchMesh()
 {
 	touch_mesh->clear();
 	touch_mesh->setMode(OF_PRIMITIVE_POINTS);
 	touch_mesh->disableIndices();
 	touch_mesh->enableColors();
 	// calibrationMeta 안함
-	system_pose = _system_pose;
+	for (int i = 0; i < touch3DPoint.size(); ++i) {
+		touch_mesh->addVertex(touch3DPoint.at(i) * ofPoint(-1, 1, -1) * system_pose);
+		touch_mesh->addColor(ofColor::hotPink);
+	}
 
+}
+
+void TouchManager::makeTouchPoint(ofMatrix4x4 _system_pose)
+{
+	system_pose = _system_pose;
 	previousPoint = touchPoint;
+	previous3DPoint = touch3DPoint;
 	touchPoint.clear();
+	touch3DPoint.clear();
+
 	vector<ofPoint> allTouches;
 
 	vector<vector<ofPoint>> touch_buff;
@@ -36,9 +47,9 @@ void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
 			if (!iter->second.touched) continue;
 
 			ofPoint pt = iter->second.tip;
-//			vector<ofPoint> first;
-//			first.push_back(pt);
-//			touch_buff.push_back(first);
+			//			vector<ofPoint> first;
+			//			first.push_back(pt);
+			//			touch_buff.push_back(first);
 
 			allTouches.push_back(pt);
 			bool isNew = true;
@@ -50,7 +61,7 @@ void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
 					if (dist < 50 && dist > 0) { //50 픽셀 이하면 같은 점으로 취급함
 						isNew = false;
 						touch_buff.at(i).push_back(pt);
-						cout << "dist : " << dist << endl;
+						//						cout << "dist : " << dist << endl;
 						break;
 					}
 					else if (dist == 0) continue;
@@ -73,8 +84,8 @@ void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
 				/*
 				ofPoint tot = ofPoint(0,0,0);
 				for (int j = 0; j < touch_buff.at(i).size(); ++j) {
-					tot += touch_buff.at(i).at(j);
-					cout << "pt : " << touch_buff.at(i).at(j).x << " "<< touch_buff.at(i).at(j).y << endl;
+				tot += touch_buff.at(i).at(j);
+				cout << "pt : " << touch_buff.at(i).at(j).x << " "<< touch_buff.at(i).at(j).y << endl;
 				}
 				cout << "tot : " << tot.x << " " << tot.y << endl;
 				int size = touch_buff.at(i).size();
@@ -108,11 +119,17 @@ void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
 				ofPoint currPt = touchPoint.at(0);
 				ofPoint prePt = previousPoint.at(0);
 				ofPoint distpt = currPt - prePt;
+				//				cout << "튕길까??" << endl;
 				float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
-				if (dist > 200) {
+				if (dist > 30) {
 					touchPoint = previousPoint;
+					cout << "튕겼다!" << endl;
 				}
 			}
+		}
+		//3개이상의 touchPoint일 경우 이전 Point
+		if (touchPoint.size() > 2) {
+			touchPoint = previousPoint;
 		}
 
 		//touch Point의 3D 좌표를 구함
@@ -122,36 +139,25 @@ void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
 		allTouches = visionDeviceManager->depthToCamera(allTouches);
 		// touchMesh에 저장
 
-		for (int i = 0; i < touch3DPoint.size(); ++i) {
-			touch_mesh->addVertex(touch3DPoint.at(i) * ofPoint(-1, 1, -1) * system_pose);
-			touch_mesh->addColor(ofColor::hotPink);
-		}
-		for (int i = 0; i < allTouches.size(); ++i) {
-			touch_mesh->addVertex(allTouches.at(i) * ofPoint(-1, 1, -1) * system_pose);
-			touch_mesh->addColor(ofColor::green);
-		}
-		cout << allTouches.size() << endl;
+		
+		//		for (int i = 0; i < allTouches.size(); ++i) {
+		//			touch_mesh->addVertex(allTouches.at(i) * ofPoint(-1, 1, -1) * system_pose);
+		//			touch_mesh->addColor(ofColor::green);
+		//		}
+		//		cout << allTouches.size() << endl;
 	}
 	else {
-		previousPoint.clear();
+		static auto notTouchedTime = ofGetElapsedTimeMillis();
+		auto now = ofGetElapsedTimeMillis();
+		if (now - notTouchedTime > 100) {
+			previousPoint.clear();
+		}
+		else {
+			touchPoint = previousPoint;
+			touch3DPoint = previous3DPoint;
+			allTouches = visionDeviceManager->depthToCamera(allTouches);
+		}
 	}
-
-	/*
-	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(0, 0, 0)));
-	touch_mesh->addColor(ofColor::hotPink);
-	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(1, 0, 0)));
-	touch_mesh->addColor(ofColor::hotPink);
-	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(2, 0, 0)));
-	touch_mesh->addColor(ofColor::hotPink);
-	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(3, 0, 0)));
-	touch_mesh->addColor(ofColor::hotPink);
-	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(4, 0, 0)));
-	touch_mesh->addColor(ofColor::hotPink);
-	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(5, 0, 0)));
-	touch_mesh->addColor(ofColor::hotPink);
-	touch_mesh->addVertex(visionDeviceManager->depthToCamera(ofPoint(6, 0, 0)));
-	touch_mesh->addColor(ofColor::hotPink);
-	*/
 }
 
 void TouchManager::threadedFunction()
@@ -192,7 +198,7 @@ void TouchManager::update(ofMatrix4x4 _system_pose)
 		handleTouches(newTouches);
 	}
 	updateDebug();
-	this->makeTouchMesh(_system_pose);
+	this->makeTouchPoint(_system_pose);
 
 }
 
@@ -404,6 +410,7 @@ void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 
 void TouchManager::meshDrawDebug()
 {
+	this->makeTouchMesh();
 	ofPushMatrix();
 	ofScale(-1, 1, -1);
 	ofMultMatrix(system_pose);	

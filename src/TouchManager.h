@@ -18,6 +18,7 @@ private:
 	ARVboMesh::Ptr touch_mesh = make_shared<ARVboMesh>();
 	ofMatrix4x4 system_pose;
 	vector<ofPoint> previousPoint;
+	vector<ofPoint> previous3DPoint;
 	vector<ofPoint> touchPoint;
 	vector<ofPoint> touch3DPoint;
 
@@ -31,7 +32,8 @@ private:
 	ofPoint getLiveWorldPoint(const ofVec2f &depthPt) { return getWorldPoint(depthPt, true); }
 
 	void setupWindow();
-	void makeTouchMesh(ofMatrix4x4 _system_pose);
+	void makeTouchMesh();
+	void makeTouchPoint(ofMatrix4x4 _system_pose);
 
 protected:
 	void threadedFunction();
@@ -60,5 +62,8 @@ public:
 
 	ARVboMesh::Ptr getTouchMesh() {
 		return touch_mesh;
+	}
+	vector<ofPoint> getTouch3DPoint() {
+		return touch3DPoint;
 	}
 };
