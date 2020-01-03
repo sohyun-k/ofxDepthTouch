@@ -32,7 +32,6 @@ void ofApp::setup(){
 #if USE_TOUCH
 	touchManager.init(manager);
 	touchManager.setup();
-	touchManager.startThread();
 #endif
 
 }
@@ -44,23 +43,45 @@ void ofApp::update(){
 	manager->update();
 #endif
 #if USE_TOUCH
-	touchManager.update();
+	if (touchManager.getIsTouchActivate()) {
+		touchManager.update();
+	}
 #endif
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	ofClear(ofColor::black);
-	ofBackground(ofColor::black);
+	//ofClear(ofColor::black);
+	//ofBackground(ofColor::black);
 
 #if USE_TOUCH
 	/* Draw debug info */
-	ofPushMatrix();
+	if (touchManager.getIsTouchActivate()) {
+		ofPushMatrix();
+		ofPushStyle();
+		//ofTranslate(PROJW, 0); //setupWindow()를 호줄하지 않는 이상 주석처리 할 것!
+		touchManager.drawDebug();
+//		touchManager.meshDrawDebug();
+		ofPopStyle();
+		ofPopMatrix();
+	}
+	///*
+
+	viewer.begin();
+	ofSetBackgroundColor(ofColor::black);
+
+	ofDrawAxis(2000);
+
 	ofPushStyle();
-	//ofTranslate(PROJW, 0); //setupWindow()를 호줄하지 않는 이상 주석처리 할 것!
-	touchManager.drawDebug();
-	ofPopStyle();
+	ofSetColor(ofColor::white);
+	ofPushMatrix();
+	ofRotate(90, 0, 0, -1);
+	ofDrawGridPlane(500, 7, true);
 	ofPopMatrix();
+	ofPopStyle();
+	touchManager.meshDrawDebug();
+	viewer.end();
+	//*/
 #endif
 
 
@@ -71,17 +92,32 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+	constexpr float move_offset = 10.f;
+	constexpr float angle_offset = 1.f;
+	viewer.keyPressed(key);
+	switch (key) {
+	case OF_KEY_LEFT_SHIFT: shift_pressed = true; break;
+	}
+
 #if USE_TOUCH
 	if (key == OF_KEY_ESC) {
 		touchManager.stopThread();
 		touchManager.teardown();
+	}
+	if (key == 't' || key == 'T') {
+		touchManager.setIsTouchActivate(true);
+		touchManager.startThread();
 	}
 #endif
 }
 
 //--------------------------------------------------------------
 void ofApp::keyReleased(int key){
-
+	switch (key) {
+	case OF_KEY_LEFT_SHIFT:
+		shift_pressed = false;
+		break;
+	}
 }
 
 void ofApp::mouseMoved(int x, int y) {
@@ -90,11 +126,14 @@ void ofApp::mouseMoved(int x, int y) {
 
 //--------------------------------------------------------------
 void ofApp::mouseDragged(int x, int y, int button) {
-
+	if (shift_pressed == false) {
+		viewer.mouseDragged(x, y, button);
+	}
 }
 
 //--------------------------------------------------------------
 void ofApp::mousePressed(int x, int y, int button) {
+	viewer.mousePressed(x, y, button);
 
 }
 

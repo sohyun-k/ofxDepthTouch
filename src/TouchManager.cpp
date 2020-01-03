@@ -23,7 +23,11 @@ void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
 	// calibrationMeta 안함
 	system_pose = _system_pose;
 
+	previousPoint = touchPoint;
 	touchPoint.clear();
+	vector<ofPoint> allTouches;
+
+	vector<vector<ofPoint>> touch_buff;
 
 	if (touchMap.size() > 0) {
 		map<int, FingerTouch>::iterator iter;
@@ -32,18 +36,82 @@ void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
 			if (!iter->second.touched) continue;
 
 			ofPoint pt = iter->second.tip;
+//			vector<ofPoint> first;
+//			first.push_back(pt);
+//			touch_buff.push_back(first);
+
+			allTouches.push_back(pt);
 			bool isNew = true;
-			for (int i = 0; i < touchPoint.size(); ++i) {
-				ofPoint pt1 = touchPoint.at(i);
-				ofPoint distpt = pt1 - pt;
-				float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
-				if (dist < 50) { //50 픽셀 이하면 같은 점으로 취급함
-					isNew = false;
+			for (int i = 0; i < touch_buff.size(); ++i) {
+				for (int j = 0; j < touch_buff.at(i).size(); ++j) {
+					ofPoint pt1 = touch_buff.at(i).at(j);
+					ofPoint distpt = pt1 - pt;
+					float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
+					if (dist < 50 && dist > 0) { //50 픽셀 이하면 같은 점으로 취급함
+						isNew = false;
+						touch_buff.at(i).push_back(pt);
+						cout << "dist : " << dist << endl;
+						break;
+					}
+					else if (dist == 0) continue;
+					if (!isNew) break;
 				}
 			}
-
 			if (isNew == true) {
-				touchPoint.push_back(pt);
+				vector<ofPoint> temp;
+				temp.push_back(pt);
+				touch_buff.push_back(temp);
+			}
+		}
+
+		for (int i = 0; i < touch_buff.size(); ++i) {
+			if (touch_buff.at(i).size() == 1) {
+				touchPoint.push_back(touch_buff.at(i).at(0));
+			}
+			else {
+				// 중심점으로 찾기
+				/*
+				ofPoint tot = ofPoint(0,0,0);
+				for (int j = 0; j < touch_buff.at(i).size(); ++j) {
+					tot += touch_buff.at(i).at(j);
+					cout << "pt : " << touch_buff.at(i).at(j).x << " "<< touch_buff.at(i).at(j).y << endl;
+				}
+				cout << "tot : " << tot.x << " " << tot.y << endl;
+				int size = touch_buff.at(i).size();
+				tot = ofPoint(tot.x / size, tot.y / size, tot.z / size);
+				touchPoint.push_back(tot);
+				cout << "tot : " << tot.x << " " << tot.y << endl;
+				*/
+				//임의의 한점 선택
+				/*
+				int mid = touch_buff.at(i).size() / 2;
+				touchPoint.push_back(touch_buff.at(i).at(mid));
+				*/
+				//이전 포인트와 가장 거리가 짧은 포인트
+				float dist = 999999;
+				ofPoint shortPt = touch_buff.at(i).at(0);
+				for (int j = 0; j < touch_buff.at(i).size(); ++j) {
+					for (int idx = 0; idx < previousPoint.size(); ++idx) {
+						ofPoint distPt = previousPoint.at(idx) - touch_buff.at(i).at(j);
+						float newdist = sqrt(distPt.x*distPt.x + distPt.y*distPt.y);
+						if (newdist < dist) {
+							dist = newdist;
+							shortPt = touch_buff.at(i).at(j);
+						}
+					}
+				}
+				touchPoint.push_back(shortPt);
+			}
+		}
+		if (touchPoint.size() == previousPoint.size()) {
+			if (touchPoint.size() == 1) {
+				ofPoint currPt = touchPoint.at(0);
+				ofPoint prePt = previousPoint.at(0);
+				ofPoint distpt = currPt - prePt;
+				float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
+				if (dist > 200) {
+					touchPoint = previousPoint;
+				}
 			}
 		}
 
@@ -51,12 +119,21 @@ void TouchManager::makeTouchMesh(ofMatrix4x4 _system_pose)
 		touch3DPoint.clear();
 		touch3DPoint = visionDeviceManager->depthToCamera(touchPoint);
 
+		allTouches = visionDeviceManager->depthToCamera(allTouches);
 		// touchMesh에 저장
 
 		for (int i = 0; i < touch3DPoint.size(); ++i) {
 			touch_mesh->addVertex(touch3DPoint.at(i) * ofPoint(-1, 1, -1) * system_pose);
 			touch_mesh->addColor(ofColor::hotPink);
 		}
+		for (int i = 0; i < allTouches.size(); ++i) {
+			touch_mesh->addVertex(allTouches.at(i) * ofPoint(-1, 1, -1) * system_pose);
+			touch_mesh->addColor(ofColor::green);
+		}
+		cout << allTouches.size() << endl;
+	}
+	else {
+		previousPoint.clear();
 	}
 
 	/*
@@ -199,17 +276,17 @@ void TouchManager::drawDebug()
 	//depthviz.draw(0, 0);	// depth 영상
 	//drawText("Depth", 0, 0, HAlign::left, VAlign::top);
 
-	//bgthread->drawDebug(0, dh);   //background 영상
+//	bgthread->drawDebug(0, dh);   //background 영상
 	touchTracker->drawDebug(0, -dh);	// diff, diff+edge, edge, blob 영상
 	
 	// color영상 draw
-	this->colorTouchDraw(300, 300, 640, 360);
-
+//	this->colorTouchDraw(300, 300, 640, 360);
+	/*
 	drawText(ofVAArgsToString("FPS: %.1f\n", ofGetFrameRate())
 		+ ofVAArgsToString("BG Update FPS: %.1f\n", bgthread->fps.fps)
 		+ ofVAArgsToString("Touch Update FPS: %.1f\n", touchTracker->fps.fps), 
 		ofGetWindowWidth(), 0, HAlign::right, VAlign::top);
-
+		*/
 	/*
 	int debugMouseX = mouseX - PROJW;
 	int debugMouseY = mouseY;
@@ -242,10 +319,51 @@ void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 	float scale_y = h / colorImg.getHeight();
 	
 	vector<ofPoint> visited;
+	vector<vector<ofPoint>> touch_buff;
+
 
 	if (touchMap.size() > 0) {
 		map<int, FingerTouch>::iterator iter;
 
+		for (iter = touchMap.begin(); iter != touchMap.end(); iter++) {
+			if (!iter->second.touched) continue;
+
+			ofPoint pt = iter->second.tip;
+			bool isNew = true;
+			for (int i = 0; i < touch_buff.size(); ++i) {
+				for (int j = 0; j < touch_buff.at(i).size(); ++j) {
+					ofPoint pt1 = touch_buff.at(i).at(j);
+					ofPoint distpt = pt1 - pt;
+					float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
+					if (dist < 50) { //50 픽셀 이하면 같은 점으로 취급함
+						isNew = false;
+						touch_buff.at(i).push_back(pt1);
+						break;
+					}
+					if (!isNew) break;
+				}
+			}
+			if (isNew == true) {
+				vector<ofPoint> temp;
+				temp.push_back(pt);
+				touch_buff.push_back(temp);
+			}
+		}
+
+		for (int i = 0; i < touch_buff.size(); ++i) {
+			if (touch_buff.at(i).size() == 1) {
+				touchPoint.push_back(touch_buff.at(i).at(0));
+			}
+			else {
+				ofPoint tot = ofPoint(0, 0, 0);
+				for (int j = 0; j < touch_buff.at(i).size(); ++j) {
+					tot += touch_buff.at(i).at(j);
+				}
+				tot = tot / touch_buff.at(i).size();
+				touchPoint.push_back(tot);
+			}
+		}
+		/*
 		for (iter = touchMap.begin(); iter != touchMap.end(); iter++) {
 			if (!iter->second.touched) continue;
 
@@ -265,15 +383,16 @@ void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 				drawText("point" + ofToString(pt.x) + " " + ofToString(pt.y), pt*ofPoint(scale_x, scale_y) + ofPoint(x, y), HAlign::left, VAlign::top);
 			}
 		}
+		*/
 	}
 
 
 	vector<ofPoint> touch_point_color =
-		visionDeviceManager->depthToColor(visited);
+		visionDeviceManager->depthToColor(touchPoint);
 
 	ofPushStyle();
 	ofSetColor(ofColor::green);
-	for (ofPoint pt : touch_point_color) {
+	for (ofPoint pt : touchPoint) {
 		ofPoint draw_pt = 
 			pt*ofPoint(scale_x, scale_y) + ofPoint(x, y);
 		ofDrawCircle(draw_pt, 10);
@@ -285,10 +404,8 @@ void TouchManager::colorTouchDraw(int x, int y, int w, int h)
 
 void TouchManager::meshDrawDebug()
 {
-	
-	
 	ofPushMatrix();
-	ofScale(1, -1, 1);
+	ofScale(-1, 1, -1);
 	ofMultMatrix(system_pose);	
 	visionDeviceManager->getPointCloudMesh().draw();
 	ofPopMatrix();
@@ -298,6 +415,7 @@ void TouchManager::meshDrawDebug()
 	touch_mesh->draw();
 	glPointSize(1);
 	ofPopMatrix();
+
 }
 
 bool TouchManager::getIsTouchActivate()

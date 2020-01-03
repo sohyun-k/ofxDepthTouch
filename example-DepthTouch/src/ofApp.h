@@ -26,4 +26,7 @@ class ofApp : public ofBaseApp{
 
 		VisionDeviceManager::Ptr manager;
 		TouchManager touchManager;
+
+		ARViewer viewer;
+		bool shift_pressed;
 };

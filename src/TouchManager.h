@@ -17,6 +17,7 @@ private:
 	bool isTouchActivated = false;
 	ARVboMesh::Ptr touch_mesh = make_shared<ARVboMesh>();
 	ofMatrix4x4 system_pose;
+	vector<ofPoint> previousPoint;
 	vector<ofPoint> touchPoint;
 	vector<ofPoint> touch3DPoint;
 
