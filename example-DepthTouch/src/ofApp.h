@@ -4,6 +4,7 @@
 #include "VisionDeviceManager.hpp"
 #include "VisionDeviceKinect2.hpp"
 #include "TouchManager.h"
+#include <Windows.h>
 
 class ofApp : public ofBaseApp{
 
@@ -29,4 +30,9 @@ class ofApp : public ofBaseApp{
 
 		ARViewer viewer;
 		bool shift_pressed;
+
+		void moveMouse(ofPoint pt);
+		bool isMouseMove = false;
+		int mouseClickTime = 0;
+		ofPoint mouseCurPos=ofPoint();
 };

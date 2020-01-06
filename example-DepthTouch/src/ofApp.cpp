@@ -45,6 +45,30 @@ void ofApp::update(){
 #if USE_TOUCH
 	if (touchManager.getIsTouchActivate()) {
 		touchManager.update();
+		vector<ofPoint> touchPt = touchManager.getTouchPoint();
+		int h = manager->getDepthImage().getHeight();
+		int w = manager->getDepthImage().getWidth();
+		if(isMouseMove){
+			if (touchPt.size() == 1) {
+				mouseClickTime = 0;
+				mouseCurPos = ofPoint((touchPt.at(0).x / w) * 1920, (touchPt.at(0).y / h) * 1080);
+				SetCursorPos(mouseCurPos.x, mouseCurPos.y);
+			}
+			else if (touchPt.size() == 2) {
+				cout << "나 클릭중" << endl;
+				mouseClickTime += 1;
+				if (mouseClickTime > 10) {
+					cout << "클릭했는데?" << endl;
+					POINT pt;
+					pt.x = mouseCurPos.x;
+					pt.y = mouseCurPos.y;
+					HWND window = WindowFromPoint(pt);
+					mouse_event(MOUSEEVENTF_LEFTDOWN, pt.x, pt.y, 0, 0);
+					mouse_event(MOUSEEVENTF_LEFTUP, pt.x, pt.y, 0, 0);
+					mouseClickTime = 0;
+				}
+			}
+		}
 	}
 #endif
 }
@@ -108,6 +132,9 @@ void ofApp::keyPressed(int key){
 		touchManager.setIsTouchActivate(true);
 		touchManager.startThread();
 	}
+	if (key == 'm' || key == 'M') {
+		isMouseMove = !isMouseMove;
+	}
 #endif
 }
 
@@ -160,6 +187,11 @@ void ofApp::windowResized(int w, int h) {
 //--------------------------------------------------------------
 void ofApp::gotMessage(ofMessage msg) {
 
+}
+
+void ofApp::moveMouse(ofPoint pt)
+{
+	SetCursorPos(0,0);
 }
 
 //--------------------------------------------------------------

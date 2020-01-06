@@ -58,7 +58,7 @@ void TouchManager::makeTouchPoint(ofMatrix4x4 _system_pose)
 					ofPoint pt1 = touch_buff.at(i).at(j);
 					ofPoint distpt = pt1 - pt;
 					float dist = sqrt(distpt.x*distpt.x + distpt.y*distpt.y);
-					if (dist < 50 && dist > 0) { //50 픽셀 이하면 같은 점으로 취급함
+					if (dist < 40 && dist > 0) { //50 픽셀 이하면 같은 점으로 취급함
 						isNew = false;
 						touch_buff.at(i).push_back(pt);
 						//						cout << "dist : " << dist << endl;
@@ -84,21 +84,20 @@ void TouchManager::makeTouchPoint(ofMatrix4x4 _system_pose)
 				/*
 				ofPoint tot = ofPoint(0,0,0);
 				for (int j = 0; j < touch_buff.at(i).size(); ++j) {
-				tot += touch_buff.at(i).at(j);
-				cout << "pt : " << touch_buff.at(i).at(j).x << " "<< touch_buff.at(i).at(j).y << endl;
+					tot += touch_buff.at(i).at(j);
+
+					int size = touch_buff.at(i).size();
+					tot = ofPoint(tot.x / size, tot.y / size, tot.z / size);
+					touchPoint.push_back(tot);
 				}
-				cout << "tot : " << tot.x << " " << tot.y << endl;
-				int size = touch_buff.at(i).size();
-				tot = ofPoint(tot.x / size, tot.y / size, tot.z / size);
-				touchPoint.push_back(tot);
-				cout << "tot : " << tot.x << " " << tot.y << endl;
 				*/
 				//임의의 한점 선택
-				/*
+				///*
 				int mid = touch_buff.at(i).size() / 2;
-				touchPoint.push_back(touch_buff.at(i).at(mid));
-				*/
+				touchPoint.push_back(touch_buff.at(i).at(0));
+				//*/
 				//이전 포인트와 가장 거리가 짧은 포인트
+				/*
 				float dist = 999999;
 				ofPoint shortPt = touch_buff.at(i).at(0);
 				for (int j = 0; j < touch_buff.at(i).size(); ++j) {
@@ -112,6 +111,7 @@ void TouchManager::makeTouchPoint(ofMatrix4x4 _system_pose)
 					}
 				}
 				touchPoint.push_back(shortPt);
+				*/
 			}
 		}
 		if (touchPoint.size() == previousPoint.size()) {

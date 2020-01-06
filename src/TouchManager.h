@@ -23,6 +23,7 @@ private:
 	vector<ofPoint> touch3DPoint;
 
 public:
+	typedef shared_ptr<TouchManager> Ptr;
 	map<int, FingerTouch> touchMap;
 	ofImage depthviz;
 
@@ -65,5 +66,8 @@ public:
 	}
 	vector<ofPoint> getTouch3DPoint() {
 		return touch3DPoint;
+	}
+	vector<ofPoint> getTouchPoint() {
+		return touchPoint;
 	}
 };
